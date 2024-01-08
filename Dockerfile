@@ -34,6 +34,7 @@ COPY . /var/www
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data . /var/www
 
-# Expose port 8000 and start php-fpm server
+# Expose port 8000 and 5173 and start php-fpm server
 EXPOSE 8000
+EXPOSE 5173
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

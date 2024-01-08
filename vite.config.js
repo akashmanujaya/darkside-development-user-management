@@ -8,11 +8,15 @@ export default defineConfig({
         port: 5173,
         hmr: {
             host: '0.0.0.0',
-            // Add this line to specify HMR's port, ensuring it's the same as Vite's server port
-            port: 5173, 
+            // Added this line to specify HMR's port, ensuring it's the same as Vite's server port
+            port: 5173,
         },
         // Add this to allow cross-origin requests
-        cors: true
+        cors: true,
+        watch: {
+            usePolling: true
+        },
+        refresh: true
     },
     plugins: [
         laravel({
