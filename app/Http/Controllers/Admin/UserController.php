@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index()
     {
-       return User::latest()->get(); 
+       return User::latest()->get();    
     }
 
     public function store(Request $request)
@@ -31,6 +31,12 @@ class UserController extends Controller
 
     public function update(User $user)
     {
+        request()->validate([
+            'name' => 'required',
+            'email' => 'email|required|unique:users,email,'.$user->id,
+            'password' => 'sometimes|min:8'
+        ]);
+
         $user->update([
             'name' => request('name'),
             'email' => request('email'),
@@ -38,5 +44,12 @@ class UserController extends Controller
         ]);
        
         return $user;
+    }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+
+        return response()->noContent();
     }
 }

@@ -1,5 +1,5 @@
 import DashBoard from './components/DashBoard.vue'
-import ListUsers from './Pages/Users/ListUsers.vue'
+import UserList from './Pages/Users/UserList.vue'
 
 export default [
     {
@@ -10,6 +10,6 @@ export default [
     {
         path: '/admin/users',
         name: 'admin.users',
-        component: ListUsers
+        component: UserList
     }
 ]

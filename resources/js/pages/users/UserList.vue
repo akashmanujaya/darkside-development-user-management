@@ -1,13 +1,23 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import axios from "axios";
 import { Form, Field } from "vee-validate";
 import * as yup from "yup";
+import { useToastr } from "../../toastr.js";
+import UserListItem from "./UserListItem.vue";
 
 const users = ref({'data': []});
 const editing = ref(false);
 const formValues = ref();
 const form = ref(null);
+const toastr = useToastr();
+
+watch(formValues, (newValues) => {
+    if (form.value) {
+        form.value.setValues(newValues);
+    }
+});
+
 
 // get users from the database
 const getUsers = () => {
@@ -40,23 +50,26 @@ const editUserSchema = yup.object({
 });
 
 // save new user
-const createUser = (values, { resetForm }) => {
-    axios
-        .post("/api/users", values)
+const createUser = (values, { resetForm, setErrors }) => {
+    axios.post('/api/users', values)
         .then((response) => {
             users.value.unshift(response.data);
-            $("#userFormModal").modal("hide");
+            $('#userFormModal').modal('hide');
             resetForm();
+            toastr.success('User created successfully!');
         })
         .catch((error) => {
-            console.log(error);
-        });
+            if (error.response.data.errors) {
+                setErrors(error.response.data.errors);
+            }
+        })
 };
 
 //add user
 const addUser = () => {
     editing.value = false;
     $("#userFormModal").modal("show");
+    form.value.resetForm();
 };
 
 // edit user
@@ -71,22 +84,19 @@ const editUser = (user) => {
     };
 };
 
-
 // update user
-const updateUser = (values) => {
+const updateUser = (values, { setErrors }) => {
     axios
         .put(`/api/users/${formValues.value.id}`, values)
         .then((response) => {
             const index = users.value.findIndex(user => user.id === response.data.id);
             users.value[index] = response.data;
             $("#userFormModal").modal("hide");
+            toastr.success('User updated successfully');
         })
         .catch((error) => {
-            console.log(error);
-        })
-        .finally(() => {
-            form.value.resetForm();
-        })
+            setErrors(error.response.data.errors);
+        });
 };
 
 const handleSubmit = (values, actions) => {
@@ -96,6 +106,10 @@ const handleSubmit = (values, actions) => {
     } else {
         createUser(values, actions);
     }
+}
+
+const userDeleted = (userId) => {
+    users.value = users.value.filter(user => user.id !== userId);
 }
 
 onMounted(() => {
@@ -136,27 +150,19 @@ onMounted(() => {
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Registered Date</th>
-                                <th>Role</th>
-                                <th>Options</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(user, index) in users" :key="user.id">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ user.name }}</td>
-                                <td>{{ user.email }}</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>
-                                    <a
-                                        href="#"
-                                        @click.prevent="editUser(user)"
-                                        class="btn btn-sm btn-primary"
-                                    >
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                </td>
-                            </tr>
+                            <UserListItem  v-for="(user, index) in users" 
+                                :key="user.id"
+                                :user=user
+                                :index=index
+                                @edit-user="editUser"
+                                @user-deleted="userDeleted"
+                            >
+                            </UserListItem>
+                            
                         </tbody>
                     </table>
                 </div>
@@ -164,7 +170,7 @@ onMounted(() => {
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Add / Edit Modal -->
     <div
         class="modal fade"
         id="userFormModal"
@@ -264,4 +270,6 @@ onMounted(() => {
             </div>
         </div>
     </div>
+
+    
 </template>
