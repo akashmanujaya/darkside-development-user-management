@@ -1,15 +1,13 @@
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, ref } from "vue";
 import axios from "axios";
 import { Form, Field } from "vee-validate";
 import * as yup from "yup";
 
-const users = ref([]);
-const schema = yup.object({
-    name: yup.string().required(),
-    email: yup.string().required().email(),
-    password: yup.string().required().min(8),
-});
+const users = ref({'data': []});
+const editing = ref(false);
+const formValues = ref();
+const form = ref(null);
 
 // get users from the database
 const getUsers = () => {
@@ -23,12 +21,31 @@ const getUsers = () => {
         });
 };
 
+const createUserSchema = yup.object({
+    name: yup.string().required(),
+    email: yup.string().email().required(),
+    password: yup.string().required().min(8),
+});
+
+const editUserSchema = yup.object({
+    name: yup.string().required(),
+    email: yup.string().email().required(),
+    password: yup.string().test(
+        'password-conditional',
+        'Password must be at least 8 characters',
+        function(value) {
+            return !value || value.length >= 8;
+        }
+    ),
+});
+
+// save new user
 const createUser = (values, { resetForm }) => {
     axios
         .post("/api/users", values)
         .then((response) => {
             users.value.unshift(response.data);
-            $("#createUserModal").modal("hide");
+            $("#userFormModal").modal("hide");
             resetForm();
         })
         .catch((error) => {
@@ -36,20 +53,50 @@ const createUser = (values, { resetForm }) => {
         });
 };
 
-// const createUser = () => {
-//     axios
-//         .post("/api/users", form)
-//         .then((response) => {
-//             users.value.unshift(response.data);
-//             form.name = "";
-//             form.email = "";
-//             form.password = "";
-//             $("#createUserModal").modal("hide");
-//         })
-//         .catch((error) => {
-//             console.log(error);
-//         });
-// };
+//add user
+const addUser = () => {
+    editing.value = false;
+    $("#userFormModal").modal("show");
+};
+
+// edit user
+const editUser = (user) => {
+    editing.value = true;
+    form.value.resetForm();
+    $('#userFormModal').modal('show');
+    formValues.value = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+    };
+};
+
+
+// update user
+const updateUser = (values) => {
+    axios
+        .put(`/api/users/${formValues.value.id}`, values)
+        .then((response) => {
+            const index = users.value.findIndex(user => user.id === response.data.id);
+            users.value[index] = response.data;
+            $("#userFormModal").modal("hide");
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+        .finally(() => {
+            form.value.resetForm();
+        })
+};
+
+const handleSubmit = (values, actions) => {
+    // console.log(actions);
+    if (editing.value) {
+        updateUser(values, actions);
+    } else {
+        createUser(values, actions);
+    }
+}
 
 onMounted(() => {
     getUsers();
@@ -76,12 +123,7 @@ onMounted(() => {
     <div class="content">
         <div class="container-fluid">
             <!-- Button trigger modal -->
-            <button
-                type="button"
-                class="btn btn-primary mb-2"
-                data-toggle="modal"
-                data-target="#createUserModal"
-            >
+            <button @click="addUser" type="button" class="btn btn-primary mb-2">
                 Add New User
             </button>
 
@@ -125,7 +167,7 @@ onMounted(() => {
     <!-- Modal -->
     <div
         class="modal fade"
-        id="createUserModal"
+        id="userFormModal"
         data-backdrop="static"
         tabindex="-1"
         role="dialog"
@@ -136,7 +178,8 @@ onMounted(() => {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">
-                        Add New User
+                        <span v-if="editing">Edit User</span>
+                        <span v-else>Add New User</span>
                     </h5>
                     <button
                         type="button"
@@ -148,9 +191,13 @@ onMounted(() => {
                     </button>
                 </div>
                 <Form
-                    @submit="createUser"
-                    :validation-schema="schema"
+                    ref="form"
+                    @submit="handleSubmit"
+                    :validation-schema="
+                        editing ? editUserSchema : createUserSchema
+                    "
                     v-slot="{ errors }"
+                    :initial-values="formValues"
                 >
                     <div class="modal-body">
                         <div class="form-group">
@@ -178,9 +225,11 @@ onMounted(() => {
                                 :class="{ 'is-invalid': errors.email }"
                                 id="email"
                                 aria-describedby="nameHelp"
-                                placeholder="Enter full name"
+                                placeholder="Enter email"
                             />
-                            <span class="invalid-feedback">{{ errors.email }}</span>
+                            <span class="invalid-feedback">{{
+                                errors.email
+                            }}</span>
                         </div>
 
                         <div class="form-group">

@@ -28,4 +28,15 @@ class UserController extends Controller
             'password' => Hash::make($request->password)
         ]);
     }
+
+    public function update(User $user)
+    {
+        $user->update([
+            'name' => request('name'),
+            'email' => request('email'),
+            'password' => request('password') ? Hash::make(request('password')) : $user->password
+        ]);
+       
+        return $user;
+    }
 }

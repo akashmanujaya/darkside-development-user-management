@@ -12,11 +12,7 @@ export default defineConfig({
             port: 5173,
         },
         // Add this to allow cross-origin requests
-        cors: true,
-        watch: {
-            usePolling: true
-        },
-        refresh: true
+        cors: true
     },
     plugins: [
         laravel({
