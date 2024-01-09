@@ -30,14 +30,44 @@ class CustomersRepository implements CustomersRepositoryInterfaces
         }
     }
 
-    public function createCustomer ($request) {
+    public function listCustomers($paginate = true, $page = 1, $limit = 10)
+    {
+        try {
+            if ($paginate) {
+                return $this->model->orderBy('created_at', 'DESC')->paginate($limit);
+            } else {
+                return $this->model->orderBy('created_at', 'DESC')->get();
+            }
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function createCustomer ($request) 
+    {
+        
         try {
             // Sanitize the request data
             $sanitizedRequest = $this->sanitizeInput($request->all());
 
             // Create customer with sanitized data
             $customer = $this->model->create($sanitizedRequest);
-            
+
+            return $this->findCustomerById($customer->id);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function updateCustomer($request, int $id): Customers
+    {
+        try {
+            $customer = $this->findCustomerById($id);
+
+            $sanitizedRequest = $this->sanitizeInput($request->all());
+
+            $customer->update($sanitizedRequest);
+
             return $this->findCustomerById($customer->id);
         } catch (\Exception $e) {
             throw $e;

@@ -4,9 +4,9 @@ import axios from "axios";
 import { Form, Field } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
-import UserListItem from "./CustomerListItem.vue";
+import CustomerListItem from "./CustomerListItem.vue";
 
-const users = ref({'data': []});
+const customers = ref({ data: [] });
 const editing = ref(false);
 const formValues = ref();
 const form = ref(null);
@@ -18,102 +18,104 @@ watch(formValues, (newValues) => {
     }
 });
 
-
-// get users from the database
-const getUsers = () => {
+// get customers from the database
+const addCustomers = () => {
     axios
-        .get("/api/users")
+        .get("/admin/customer-management/api/customers")
         .then((response) => {
-            users.value = response.data;
+            customers.value = response.data.data;
         })
         .catch((error) => {
             console.log(error);
         });
 };
 
-const createUserSchema = yup.object({
-    name: yup.string().required(),
-    email: yup.string().email().required(),
-    password: yup.string().required().min(8),
+//add customer
+const addCustomer = () => {
+    editing.value = false;
+    $("#customerFormModal").modal("show");
+    form.value.resetForm();
+};
+
+// edit customer
+const editCustomer = (customer) => {
+    editing.value = true;
+    form.value.resetForm();
+    $("#customerFormModal").modal("show");
+    formValues.value = {
+        id: customer.id,
+        first_name: customer.f_name,
+        last_name: customer.l_name,
+        email: customer.email_address,
+        phone: customer.phone_number,
+        address: customer.addrs,
+    };
+};
+
+
+// create customer validation rules
+const createCustomerSchema = yup.object({
+    first_name: yup.string().required("First name is required"),
+    last_name: yup.string().required("Last name is required"),
+    email: yup.string().email("Invalid email format").required("Email is required"),
+    phone: yup.string().matches(/^\+44\d{10}$/, "Phone number must be in the format +44XXXXXXXXXX").required("Phone number is required"),
+    address: yup.string().required("Address is required"),
 });
 
-const editUserSchema = yup.object({
-    name: yup.string().required(),
-    email: yup.string().email().required(),
-    password: yup.string().test(
-        'password-conditional',
-        'Password must be at least 8 characters',
-        function(value) {
-            return !value || value.length >= 8;
-        }
-    ),
+// edit customer validation rules
+const editCustomerSchema = yup.object({
+    first_name: yup.string().required("First name is required"),
+    last_name: yup.string().required("Last name is required"),
+    email: yup.string().email("Invalid email format").required("Email is required"),
+    phone: yup.string().matches(/^\+44\d{10}$/, "Phone number must be in the format +44XXXXXXXXXX").required("Phone number is required"),
+    address: yup.string().required("Address is required"),
 });
 
-// save new user
-const createUser = (values, { resetForm, setErrors }) => {
-    axios.post('/admin/customer-management/api/customer', values)
+// save new customer
+const createCustomer = (values, { resetForm, setErrors }) => {
+    axios
+        .post("/admin/customer-management/api/customer", values)
         .then((response) => {
-            users.value.unshift(response.data);
-            $('#userFormModal').modal('hide');
+            customers.value.unshift(response.data);
+            $("#customerFormModal").modal("hide");
             resetForm();
-            toastr.success('User created successfully!');
+            toastr.success("Customer created successfully!");
         })
         .catch((error) => {
             if (error.response.data.errors) {
                 setErrors(error.response.data.errors);
             }
-        })
+        });
 };
 
-//add user
-const addUser = () => {
-    editing.value = false;
-    $("#userFormModal").modal("show");
-    form.value.resetForm();
-};
-
-// edit user
-const editUser = (user) => {
-    editing.value = true;
-    form.value.resetForm();
-    $('#userFormModal').modal('show');
-    formValues.value = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-    };
-};
-
-// update user
-const updateUser = (values, { setErrors }) => {
+// update customer
+const updateCustomer = (values, { setErrors }) => {
     axios
-        .put(`/api/users/${formValues.value.id}`, values)
+        .put(`/admin/customer-management/api/cutomer/${formValues.value.id}`, values)
         .then((response) => {
-            const index = users.value.findIndex(user => user.id === response.data.id);
-            users.value[index] = response.data;
-            $("#userFormModal").modal("hide");
-            toastr.success('User updated successfully');
+            const index = customers.value.findIndex(
+                (customer) => customer.id === response.data.id
+            );
+            customers.value[index] = response.data;
+            $("#customerFormModal").modal("hide");
+            toastr.success("Customer updated successfully");
         })
         .catch((error) => {
             setErrors(error.response.data.errors);
         });
 };
 
+// handle submit action for both addinf and updating customer
 const handleSubmit = (values, actions) => {
-    // console.log(actions);
     if (editing.value) {
-        updateUser(values, actions);
+        updateCustomer(values, actions);
     } else {
-        createUser(values, actions);
+        createCustomer(values, actions);
     }
-}
-
-const userDeleted = (userId) => {
-    users.value = users.value.filter(user => user.id !== userId);
-}
+};
 
 onMounted(() => {
-    getUsers();
+    addCustomers();
 });
 </script>
 
@@ -122,12 +124,12 @@ onMounted(() => {
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">User Management</h1>
+                    <h1 class="m-0">Customer Management</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">User Management</li>
+                        <li class="breadcrumb-item active">Customer Management</li>
                     </ol>
                 </div>
             </div>
@@ -137,8 +139,9 @@ onMounted(() => {
     <div class="content">
         <div class="container-fluid">
             <!-- Button trigger modal -->
-            <button @click="addUser" type="button" class="btn btn-primary mb-2">
-                Add New User
+            <button @click="addCustomer" type="button" class="btn btn-primary mb-2">
+                <i class="fa fa-plus-circle mr-1"></i>
+                Add New Customer
             </button>
 
             <div class="card">
@@ -147,22 +150,24 @@ onMounted(() => {
                         <thead>
                             <tr>
                                 <th style="width: 10px">#</th>
-                                <th>Name</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
                                 <th>Email</th>
+                                <th>Phone</th>
+                                <th>Address</th>
                                 <th>Registered Date</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <UserListItem  v-for="(user, index) in users" 
-                                :key="user.id"
-                                :user=user
-                                :index=index
-                                @edit-user="editUser"
-                                @user-deleted="userDeleted"
+                            <CustomerListItem
+                                v-for="(customer, index) in customers"
+                                :key="customer.id"
+                                :customer="customer"
+                                :index="index"
+                                @edit-customer="editCustomer"
                             >
-                            </UserListItem>
-                            
+                            </CustomerListItem>
                         </tbody>
                     </table>
                 </div>
@@ -173,7 +178,7 @@ onMounted(() => {
     <!-- Add / Edit Modal -->
     <div
         class="modal fade"
-        id="userFormModal"
+        id="customerFormModal"
         data-backdrop="static"
         tabindex="-1"
         role="dialog"
@@ -184,8 +189,8 @@ onMounted(() => {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">
-                        <span v-if="editing">Edit User</span>
-                        <span v-else>Add New User</span>
+                        <span v-if="editing">Edit Customer</span>
+                        <span v-else>Add New Customer</span>
                     </h5>
                     <button
                         type="button"
@@ -200,25 +205,39 @@ onMounted(() => {
                     ref="form"
                     @submit="handleSubmit"
                     :validation-schema="
-                        editing ? editUserSchema : createUserSchema
+                        editing ? editCustomerSchema : createCustomerSchema
                     "
                     v-slot="{ errors }"
                     :initial-values="formValues"
                 >
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="name">Name</label>
+                            <label for="firstName">First Name</label>
                             <Field
-                                name="name"
+                                name="first_name"
                                 type="text"
                                 class="form-control"
-                                :class="{ 'is-invalid': errors.name }"
-                                id="name"
-                                aria-describedby="nameHelp"
-                                placeholder="Enter full name"
+                                :class="{ 'is-invalid': errors.first_name }"
+                                id="firstName"
+                                placeholder="Enter first name"
                             />
                             <span class="invalid-feedback">{{
-                                errors.name
+                                errors.first_name
+                            }}</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <Field
+                                name="last_name"
+                                type="text"
+                                class="form-control"
+                                :class="{ 'is-invalid': errors.last_name }"
+                                id="lastName"
+                                placeholder="Enter last name"
+                            />
+                            <span class="invalid-feedback">{{
+                                errors.last_name
                             }}</span>
                         </div>
 
@@ -230,7 +249,6 @@ onMounted(() => {
                                 class="form-control"
                                 :class="{ 'is-invalid': errors.email }"
                                 id="email"
-                                aria-describedby="nameHelp"
                                 placeholder="Enter email"
                             />
                             <span class="invalid-feedback">{{
@@ -239,18 +257,32 @@ onMounted(() => {
                         </div>
 
                         <div class="form-group">
-                            <label for="email">Password</label>
+                            <label for="phone">Phone (+44)</label>
                             <Field
-                                name="password"
-                                type="password"
+                                name="phone"
+                                type="text"
                                 class="form-control"
-                                :class="{ 'is-invalid': errors.password }"
-                                id="password"
-                                aria-describedby="nameHelp"
-                                placeholder="Enter password"
+                                :class="{ 'is-invalid': errors.phone }"
+                                id="phone"
+                                placeholder="Enter phone number (e.g., +441234567890)"
                             />
                             <span class="invalid-feedback">{{
-                                errors.password
+                                errors.phone
+                            }}</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <Field
+                                name="address"
+                                type="text"
+                                class="form-control"
+                                :class="{ 'is-invalid': errors.address }"
+                                id="address"
+                                placeholder="Enter address"
+                            />
+                            <span class="invalid-feedback">{{
+                                errors.address
                             }}</span>
                         </div>
                     </div>
@@ -270,6 +302,4 @@ onMounted(() => {
             </div>
         </div>
     </div>
-
-    
 </template>
