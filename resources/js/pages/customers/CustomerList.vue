@@ -1,17 +1,19 @@
 <script setup>
 import { onMounted, ref, watch } from "vue";
-import axios from "axios";
 import { Form, Field } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
 import CustomerListItem from "./CustomerListItem.vue";
+import { getCustomers, createCustomer, updateCustomer } from "./services/customerService";
 
+// define constants
 const customers = ref({ data: [] });
 const editing = ref(false);
 const formValues = ref();
 const form = ref(null);
 const toastr = useToastr();
 
+// watch form values
 watch(formValues, (newValues) => {
     if (form.value) {
         form.value.setValues(newValues);
@@ -19,16 +21,16 @@ watch(formValues, (newValues) => {
 });
 
 // get customers from the database
-const addCustomers = () => {
-    axios
-        .get("/admin/customer-management/api/customers")
-        .then((response) => {
-            customers.value = response.data.data;
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+const getCustomersAction = async () => {
+    try {
+        const response = await getCustomers();
+        customers.value = response.data.data;
+    } catch (error) {
+        console.error(error);
+        toastr.error('Error fetching customers');
+    }
 };
+
 
 //add customer
 const addCustomer = () => {
@@ -52,7 +54,6 @@ const editCustomer = (customer) => {
     };
 };
 
-
 // create customer validation rules
 const createCustomerSchema = yup.object({
     first_name: yup.string().required("First name is required"),
@@ -72,50 +73,51 @@ const editCustomerSchema = yup.object({
 });
 
 // save new customer
-const createCustomer = (values, { resetForm, setErrors }) => {
-    axios
-        .post("/admin/customer-management/api/customer", values)
-        .then((response) => {
-            customers.value.unshift(response.data);
-            $("#customerFormModal").modal("hide");
-            resetForm();
-            toastr.success("Customer created successfully!");
-        })
-        .catch((error) => {
-            if (error.response.data.errors) {
-                setErrors(error.response.data.errors);
-            }
-        });
+const createCustomerAction = async (values, { resetForm, setErrors }) => {
+    try {
+        const response = await createCustomer(values);
+        customers.value.unshift(response.data);
+        $("#customerFormModal").modal("hide");
+        resetForm();
+        toastr.success("Customer created successfully!");
+    } catch (error) {
+        if (error.response && error.response.data.errors) {
+            setErrors(error.response.data.errors);
+        }
+        toastr.error('Error creating customer');
+    }
 };
 
 // update customer
-const updateCustomer = (values, { setErrors }) => {
-    axios
-        .put(`/admin/customer-management/api/cutomer/${formValues.value.id}`, values)
-        .then((response) => {
-            const index = customers.value.findIndex(
-                (customer) => customer.id === response.data.id
-            );
-            customers.value[index] = response.data;
-            $("#customerFormModal").modal("hide");
-            toastr.success("Customer updated successfully");
-        })
-        .catch((error) => {
+const updateCustomerAction = async (values, { setErrors }) => {
+    try {
+        const response = await updateCustomer(formValues.value.id, values);
+        const index = customers.value.findIndex(
+            customer => customer.id === response.data.id
+        );
+        customers.value[index] = response.data;
+        $("#customerFormModal").modal("hide");
+        toastr.success("Customer updated successfully");
+    } catch (error) {
+        if (error.response && error.response.data.errors) {
             setErrors(error.response.data.errors);
-        });
+        }
+        toastr.error('Error updating customer');
+    }
 };
+
 
 // handle submit action for both addinf and updating customer
 const handleSubmit = (values, actions) => {
     if (editing.value) {
-        updateCustomer(values, actions);
+        updateCustomerAction(values, actions);
     } else {
-        createCustomer(values, actions);
+        createCustomerAction(values, actions);
     }
 };
 
 onMounted(() => {
-    addCustomers();
+    getCustomersAction();
 });
 </script>
 

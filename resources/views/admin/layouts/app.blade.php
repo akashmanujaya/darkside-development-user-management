@@ -5,6 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{{ asset('assets/img/logo.jpeg') }}">
     <title>AML | Darkside Development</title>
 
     @vite('resources/css/app.css')
@@ -17,7 +18,8 @@
 
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i
+                            class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="/" class="nav-link">Home</a>
@@ -29,8 +31,8 @@
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
 
             <a href="/" class="brand-link">
-                <img src="{{ asset('assets/img/logo.jpeg') }}" alt="Daskside Dev Logo" class="brand-image img-circle elevation-3"
-                    style="opacity: .8">
+                <img src="{{ asset('assets/img/logo.jpeg') }}" alt="Daskside Dev Logo"
+                    class="brand-image img-circle elevation-3" style="opacity: .8">
                 <span class="brand-text font-weight-light">DaskSide Dev</span>
             </a>
 

@@ -1,10 +1,9 @@
-import DashBoard from './components/DashBoard.vue'
-import CustomerList from './Pages/Users/CustomerList.vue'
+import CustomerList from './pages/customers/CustomerList.vue'
 
 export default [
     {
         path: '/',
-        name: 'admin.customers',
+        name: 'customers',
         component: CustomerList
     }
 ]
