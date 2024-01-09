@@ -4,8 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: darkside-development-user-management
-    container_name: darkside-development-user-management
+    image: darkside-development-customer-management
+    container_name: darkside-development-customer-management
     restart: unless-stopped
     tty: true
     ports:
@@ -34,7 +34,7 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: mysql_db
+    container_name: aml_mysql_db
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: aml_dark_development
