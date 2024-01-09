@@ -1,14 +1,17 @@
 <script setup>
 import { formatDate } from "../../helper.js";
 
+// define Props
 defineProps({
     key: Number,
     customer:Object,
     index: Number
 });
 
+// define Emits
 const emit = defineEmits('editCustomer');
 
+// define Methods
 const editCustomer = (customer) => {
     emit('editCustomer', customer);
 };

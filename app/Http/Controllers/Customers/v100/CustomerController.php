@@ -6,13 +6,30 @@ use App\Base\Controller\BaseController;
 use App\BO\Customers\v100\Requests\CustomersCreationRequest;
 use App\BO\Customers\v100\Requests\CustomersUpdateReqeust;
 use App\BO\Customers\v100\Services\CustomersService;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
+/**
+ * Customer Controller.
+ *
+ * This controller handles the HTTP requests related to customer operations.
+ * It utilizes the CustomersService for business logic and processes incoming requests
+ * such as listing, creating, and updating customer data.
+ *
+ * @package App\Http\Controllers\Customers\v100
+ */
 class CustomerController extends BaseController
 {
+    /**
+     * Customers service instance.
+     *
+     * @var CustomersService
+     */
     protected $customersService;
 
+    /**
+     * CustomerController constructor.
+     *
+     * @param CustomersService $customersService The Customers service instance.
+     */
     public function __construct(CustomersService $customersService)
     {
         parent::__construct(new Module());
@@ -20,6 +37,11 @@ class CustomerController extends BaseController
         $this->customersService = $customersService;
     }
 
+    /**
+     * Display a listing of customers.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         try {
@@ -35,6 +57,12 @@ class CustomerController extends BaseController
         }
     }
 
+    /**
+     * Store a newly created customer in storage.
+     *
+     * @param CustomersCreationRequest $request The request object containing customer data.
+     * @return \Illuminate\Http\Response
+     */
     public function store(CustomersCreationRequest $request)
     {
         try {
@@ -49,6 +77,13 @@ class CustomerController extends BaseController
         }
     }
 
+    /**
+     * Update the specified customer in storage.
+     *
+     * @param CustomersUpdateRequest $request The request object containing customer data.
+     * @param int $id The ID of the customer to update.
+     * @return \Illuminate\Http\Response
+     */
     public function update(CustomersUpdateReqeust $request, int $id)
     {
         try {

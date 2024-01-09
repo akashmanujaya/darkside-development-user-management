@@ -15,6 +15,7 @@ Route::prefix('admin')->group(function(){
             $filePath = $moduleObj->getFilePath();
             $filePath = str_replace('\\', '/', "..\\" . $filePath . "\\Routes\\routes.php");
 
+
             if (file_exists(app_path($filePath))) {
                 require_once app_path($filePath);
             }

@@ -20,6 +20,42 @@ watch(formValues, (newValues) => {
     }
 });
 
+// create customer validation rules
+const createCustomerSchema = yup.object({
+    first_name: yup.string().required("First name is required"),
+    last_name: yup.string().required("Last name is required"),
+    email: yup
+        .string()
+        .email("Invalid email format")
+        .required("Email is required"),
+    phone: yup
+        .string()
+        .matches(
+            /^\+44\d{10}$/,
+            "Phone number must be in the format +44XXXXXXXXXX"
+        )
+        .required("Phone number is required"),
+    address: yup.string().required("Address is required"),
+});
+
+// edit customer validation rules
+const editCustomerSchema = yup.object({
+    first_name: yup.string().required("First name is required"),
+    last_name: yup.string().required("Last name is required"),
+    email: yup
+        .string()
+        .email("Invalid email format")
+        .required("Email is required"),
+    phone: yup
+        .string()
+        .matches(
+            /^\+44\d{10}$/,
+            "Phone number must be in the format +44XXXXXXXXXX"
+        )
+        .required("Phone number is required"),
+    address: yup.string().required("Address is required"),
+});
+
 // get customers from the database
 const getCustomersAction = async () => {
     try {
@@ -27,10 +63,9 @@ const getCustomersAction = async () => {
         customers.value = response.data.data;
     } catch (error) {
         console.error(error);
-        toastr.error('Error fetching customers');
+        toastr.error("Error fetching customers");
     }
 };
-
 
 //add customer
 const addCustomer = () => {
@@ -54,24 +89,6 @@ const editCustomer = (customer) => {
     };
 };
 
-// create customer validation rules
-const createCustomerSchema = yup.object({
-    first_name: yup.string().required("First name is required"),
-    last_name: yup.string().required("Last name is required"),
-    email: yup.string().email("Invalid email format").required("Email is required"),
-    phone: yup.string().matches(/^\+44\d{10}$/, "Phone number must be in the format +44XXXXXXXXXX").required("Phone number is required"),
-    address: yup.string().required("Address is required"),
-});
-
-// edit customer validation rules
-const editCustomerSchema = yup.object({
-    first_name: yup.string().required("First name is required"),
-    last_name: yup.string().required("Last name is required"),
-    email: yup.string().email("Invalid email format").required("Email is required"),
-    phone: yup.string().matches(/^\+44\d{10}$/, "Phone number must be in the format +44XXXXXXXXXX").required("Phone number is required"),
-    address: yup.string().required("Address is required"),
-});
-
 // save new customer
 const createCustomerAction = async (values, { resetForm, setErrors }) => {
     try {
@@ -84,7 +101,7 @@ const createCustomerAction = async (values, { resetForm, setErrors }) => {
         if (error.response && error.response.data.errors) {
             setErrors(error.response.data.errors);
         }
-        toastr.error('Error creating customer');
+        toastr.error("Error creating customer");
     }
 };
 
@@ -93,7 +110,7 @@ const updateCustomerAction = async (values, { setErrors }) => {
     try {
         const response = await updateCustomer(formValues.value.id, values);
         const index = customers.value.findIndex(
-            customer => customer.id === response.data.id
+            (customer) => customer.id === response.data.id
         );
         customers.value[index] = response.data;
         $("#customerFormModal").modal("hide");
@@ -102,12 +119,11 @@ const updateCustomerAction = async (values, { setErrors }) => {
         if (error.response && error.response.data.errors) {
             setErrors(error.response.data.errors);
         }
-        toastr.error('Error updating customer');
+        toastr.error("Error updating customer");
     }
 };
 
-
-// handle submit action for both addinf and updating customer
+// handle submit action for both adding and updating customer
 const handleSubmit = (values, actions) => {
     if (editing.value) {
         updateCustomerAction(values, actions);
@@ -116,6 +132,7 @@ const handleSubmit = (values, actions) => {
     }
 };
 
+// when page is mounted, get customers from the database
 onMounted(() => {
     getCustomersAction();
 });
@@ -131,7 +148,9 @@ onMounted(() => {
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Customer Management</li>
+                        <li class="breadcrumb-item active">
+                            Customer Management
+                        </li>
                     </ol>
                 </div>
             </div>
@@ -141,7 +160,11 @@ onMounted(() => {
     <div class="content">
         <div class="container-fluid">
             <!-- Button trigger modal -->
-            <button @click="addCustomer" type="button" class="btn btn-primary mb-2">
+            <button
+                @click="addCustomer"
+                type="button"
+                class="btn btn-primary mb-2"
+            >
                 <i class="fa fa-plus-circle mr-1"></i>
                 Add New Customer
             </button>
