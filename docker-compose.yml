@@ -24,6 +24,13 @@ services:
       DB_PASSWORD: password
     networks:
       - laravel
+    command: >
+       /bin/sh -c "/wait-for-db.sh db &&
+              composer install &&
+              cp .env.example .env &&
+              php artisan migrate --seed &&
+              php artisan key:generate &&
+              php artisan serve --host=0.0.0.0 --port=8000"
 
   db:
     image: mysql:8.0

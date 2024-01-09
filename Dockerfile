@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     curl \
     gnupg \
-    software-properties-common
+    software-properties-common \
+    default-mysql-client
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
@@ -34,7 +35,11 @@ COPY . /var/www
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data . /var/www
 
+# Copy wait-for-db script
+COPY wait-for-db.sh /wait-for-db.sh
+RUN chmod +x /wait-for-db.sh
+
 # Expose port 8000 and 5173 and start php-fpm server
 EXPOSE 8000
 EXPOSE 5173
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
