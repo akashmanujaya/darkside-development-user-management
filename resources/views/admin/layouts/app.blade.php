@@ -164,10 +164,10 @@
                             </router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/admin/users" active-class="active" class="nav-link">
+                            <router-link to="/admin/customers" active-class="active" class="nav-link">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>
-                                    User Management
+                                    Customers Management
                                 </p>
                             </router-link>
                         </li>

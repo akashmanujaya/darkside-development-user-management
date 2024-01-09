@@ -4,7 +4,7 @@ import axios from "axios";
 import { Form, Field } from "vee-validate";
 import * as yup from "yup";
 import { useToastr } from "../../toastr.js";
-import UserListItem from "./UserListItem.vue";
+import UserListItem from "./CustomerListItem.vue";
 
 const users = ref({'data': []});
 const editing = ref(false);
@@ -51,7 +51,7 @@ const editUserSchema = yup.object({
 
 // save new user
 const createUser = (values, { resetForm, setErrors }) => {
-    axios.post('/api/users', values)
+    axios.post('/admin/customer-management/api/customer', values)
         .then((response) => {
             users.value.unshift(response.data);
             $('#userFormModal').modal('hide');

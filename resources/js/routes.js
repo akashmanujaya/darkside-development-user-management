@@ -1,5 +1,5 @@
 import DashBoard from './components/DashBoard.vue'
-import UserList from './Pages/Users/UserList.vue'
+import CustomerList from './Pages/Users/CustomerList.vue'
 
 export default [
     {
@@ -8,8 +8,8 @@ export default [
         component: DashBoard
     },
     {
-        path: '/admin/users',
-        name: 'admin.users',
-        component: UserList
+        path: '/admin/customers',
+        name: 'admin.customers',
+        component: CustomerList
     }
 ]
