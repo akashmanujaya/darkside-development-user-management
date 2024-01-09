@@ -1,66 +1,108 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Darkside Development User Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Overview
 
-## About Laravel
+The Darkside Development User Management System is a web application developed in Laravel and Vue.js, designed to run in a Docker environment. It offers robust user management functionalities including user creation, updating, and listing.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Requirements
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Packages and Ports
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Docker Environment**
+  - PHP: 8.2.0
+  - MySQL: 8.0
+  - Node.js: >= 16.20.2 (LTS)
+  - Composer: >= 2.6.6
 
-## Learning Laravel
+- **Exposed Ports**
+  - 8000: Application
+  - 5173: Node.js
+  - 3306: MySQL
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Dependencies
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- **Backend (PHP/Laravel)**
+  - `laravel/framework`: ^10.10
+  - `laravel/sanctum`: ^3.3
+  - `guzzlehttp/guzzle`: ^7.2
+  - Other dependencies as specified in `composer.json`
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Frontend (Vue.js)**
+  - `vue`: ^3.4.5
+  - `vue-router`: ^4.2.5
+  - `vee-validate`: ^4.12.4
+  - Other dependencies as specified in `package.json`
 
-## Laravel Sponsors
+## Installation Steps Using Docker
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/akashmanujaya/darkside-development-user-management.git
+   cd darkside-development-user-management
+   ```
 
-### Premium Partners
+2. **Build and Start Docker Containers**
+   ```bash
+   docker-compose up -d --build
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+3. **Wait for the Build to Complete**
 
-## Contributing
+4. **Run NPM Development**
+   ```bash
+   npm run dev
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5. **Access the Application**
+   - URL: `http://0.0.0.0:8000/`
 
-## Code of Conduct
+## Backoffice Logic and Flow
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+The backoffice of the Darkside Development User Management System is dedicated to managing customer data. It is structured to ensure scalability, maintainability, and a clear separation of concerns. Below is an overview of its architecture and how it handles customer-related functionalities.
 
-## Security Vulnerabilities
+### Key Functionalities
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- **Customer Management**: Central to the system, this feature includes creating, updating, retrieving, and deleting customer information. It ensures data integrity and provides robust management capabilities.
 
-## License
+- **Data Validation**: Rigorous validation rules are in place to ensure the integrity and correctness of customer data before it is processed or stored.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Authentication and Authorization**: Secures access to customer data, allowing only authorized personnel to perform sensitive operations.
+
+### Architectural Flow
+
+1. **Controllers (CustomerController)**: Act as the entry point for handling HTTP requests related to customer operations. They process incoming data, apply validation, and delegate business logic to the service layer.
+
+2. **Services (CustomersService)**: Contain the business logic specific to customer operations. They interact with repositories for data access and enforce business rules.
+
+3. **Repositories (CustomersRepository)**: Provide an abstraction layer over data access, enabling interaction with the database. They are used by services to perform CRUD operations on customer data.
+
+4. **Models (Customer)**: Represent the data structure for customers, defining properties and relationships. Used by repositories to interact with the database using Eloquent ORM.
+
+5. **Migrations & Seeders**: Handle database schema changes (migrations) and initial data loading (seeders), ensuring that the database structure is consistently maintained.
+
+6. **Exceptions (CustomersNotFoundException)**: Custom exception handling specific to customer operations, enhancing error management and debugging.
+
+7. **Requests (CustomersCreationRequest, CustomersUpdateRequest)**: Specialized request classes that encapsulate validation logic for customer creation and updating operations.
+
+### Technologies and Libraries
+
+- **Laravel**: Utilized for its robust ecosystem, providing a framework for structuring the application and handling various aspects like routing, sessions, and caching.
+- **Eloquent ORM**: Used for database interactions, offering an elegant Active Record implementation for working with customer data.
+- **Vue.js**: In the frontend, Vue.js is employed to create a reactive and engaging user interface for customer management.
+
+This backoffice architecture ensures that the customer management system is efficient, reliable, and easy to maintain. The use of Laravel and its ecosystem provides a solid foundation for building scalable and secure web applications.
+
+
+## Technology Choices
+
+- **Backend:** Laravel for robust server-side functionalities.
+- **Frontend:** Vue.js for dynamic user interfaces.
+- **Containerization:** Docker for consistent deployment and development environments.
+- **Database:** MySQL for reliable data storage and management.
+
+## Running the Solution and Tests in Linux
+
+- Ensure Docker and Docker Compose are installed.
+- Clone the repo and run `docker-compose up -d --build`.
+- Access the application at `http://0.0.0.0:8000/`.
+- Run tests with `docker-compose exec app php artisan test`.
