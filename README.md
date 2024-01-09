@@ -46,10 +46,11 @@ The Darkside Development User Management System is a web application developed i
    docker-compose up -d --build
    ```
 
-3. **Wait for the Build to Complete**
+3. **Wait for the Build to Complete (This will take few second to start the mqsql and run the application. please check the docker container log for detail runnig)**
 
 4. **Run NPM Development**
    ```bash
+   npm install
    npm run dev
    ```
 
@@ -104,5 +105,6 @@ This backoffice architecture ensures that the customer management system is effi
 
 - Ensure Docker and Docker Compose are installed.
 - Clone the repo and run `docker-compose up -d --build`.
+- Rum `npm install` and `npm run dev` to run node modules.
 - Access the application at `http://0.0.0.0:8000/`.
 - Run tests with `docker-compose exec app php artisan test`.

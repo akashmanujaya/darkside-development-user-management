@@ -27,7 +27,6 @@ services:
     command: >
        /bin/sh -c "/wait-for-db.sh db &&
               composer install &&
-              npm install &&
               cp .env.example .env &&
               php artisan migrate --seed &&
               php artisan key:generate &&
